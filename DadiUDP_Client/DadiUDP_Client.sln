@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31105.61
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DadiUDP_Client", "DadiUDP_Client\DadiUDP_Client.csproj", "{04AE19BB-19C6-4996-8C84-31BD0DE41B2B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{04AE19BB-19C6-4996-8C84-31BD0DE41B2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04AE19BB-19C6-4996-8C84-31BD0DE41B2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04AE19BB-19C6-4996-8C84-31BD0DE41B2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04AE19BB-19C6-4996-8C84-31BD0DE41B2B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D2680C84-798A-4BE2-AEEF-0A411463843D}
+	EndGlobalSection
+EndGlobal
