@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media.Imaging;
 
 namespace DadiUDP_Client
 {
@@ -20,7 +22,11 @@ namespace DadiUDP_Client
 
             Thread t1 = new Thread(new ParameterizedThreadStart(SocketReceive)); // Thread per la ricezione. // Paramet... da la possibilità di creare un thread con un parametro.
             t1.Start(sourceEndPoint);
+
+            txtDestPort.Text = "60000";
+            txtIpAdd.Text = "127.0.0.1";
         }
+
 
         public async void SocketReceive(object sourceEndPoint) // l'async permette di, mentre il thread ascolta di fare le altre cose
         {
@@ -44,35 +50,81 @@ namespace DadiUDP_Client
                         bytes = socket.Receive(byteRicevuti, byteRicevuti.Length, 0); // Il primo parametro è l'array su cui verrano caricati i dati, il secondo la sua lunghezza e il terzo una flag che va sempre messa a 0.
                         message += Encoding.ASCII.GetString(byteRicevuti, 0, bytes); // Decodifica l'array di byte in ASCII string.
 
-                        // lblRicezione.Content = message; Darà errore nell'esecuzione perchè per interagire con elementi grafici del WPF bisogna passare per il Dispatcher:
-
-                        this.Dispatcher.BeginInvoke(new Action(() =>
+                        switch (message)
                         {
-                            switch ("") // TODO: Fare switch che mostra l'immagine in base al numero ricevuto.
-                            {
-
-                            }
-                        }));
+                            case "1":
+                                MostraImmagine("one", false);
+                                break;
+                            case "2":
+                                MostraImmagine("two", false);
+                                break;
+                            case "3":
+                                MostraImmagine("three", false);
+                                break;
+                            case "4":
+                                MostraImmagine("four", false);
+                                break;
+                            case "5":
+                                MostraImmagine("five", false);
+                                break;
+                            case "6":
+                                MostraImmagine("six", false);
+                                break;
+                        }
                     }
                 }
             });
         }
 
 
-        //private void MostraImmagine(string nomeImmagine)
-        //{
+        private void MostraImmagine(string nomeImmagine, bool flag)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                Image image = new Image
+                {
+                    VerticalAlignment = VerticalAlignment.Top,
+                    Width = 197,
+                    Height = 179,
+                    Margin = new Thickness(10, 10, 0, 0),
+                };
+                BitmapImage bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(@"/FaceDice/" + nomeImmagine + ".jpg", UriKind.Relative);
+                bitmap.EndInit();
+                image.Source = bitmap;
+                if (flag)
+                    grdDadoMio.Children.Add(image);
+                else
+                    grdDadoAvversario.Children.Add(image);
+            }));
+        }
 
-        //}
+        int numeroEstratto;
 
         private void btnLanciaDado_Click(object sender, RoutedEventArgs e)
         {
+            if(txtIpAdd.Text == "")
+            {
+                txtIpAdd.SelectAll();
+                txtIpAdd.Focus();
+                MessageBox.Show("Inserire l'ip di destinazione.", "Errore", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            if (txtDestPort.Text == "")
+            {
+                txtDestPort.SelectAll();
+                txtDestPort.Focus();
+                MessageBox.Show("Inserire la porta di destinazione.", "Errore", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
 
-            bool ipOk = IPAddress.TryParse(txtDestPort.Text, out IPAddress ipDest);
+            bool ipOk = IPAddress.TryParse(txtIpAdd.Text, out IPAddress ipDest);
             if (!ipOk)
             {
                 txtIpAdd.SelectAll();
                 txtIpAdd.Focus();
-                MessageBox.Show("Inserire un indirizzo ip valido.");
+                MessageBox.Show("Inserire un indirizzo ip valido.", "Errore", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             bool portaOk = int.TryParse(txtDestPort.Text, out int portDest);
@@ -80,22 +132,45 @@ namespace DadiUDP_Client
             {
                 txtDestPort.SelectAll();
                 txtDestPort.Focus();
-                MessageBox.Show("La porta di destinazione deve essere un numero.");
+                MessageBox.Show("La porta di destinazione deve essere un numero.", "Errore", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             if (portDest > 65535 || portDest < 49152)
             {
                 txtDestPort.SelectAll();
                 txtDestPort.Focus();
-                MessageBox.Show("La porta di destinazione deve essere una private port (range tra 49152 a 65535).");
+                MessageBox.Show("La porta di destinazione deve essere una private port (range tra 49152 a 65535).", "Errore", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+            
 
             IPEndPoint destinationEndPoint = new IPEndPoint(ipDest, portDest);
             Socket socket = new Socket(ipDest.AddressFamily, SocketType.Dgram, ProtocolType.Udp); // Address family recupera le informazioni sull'indirizzo ip
 
             Random rdn = new Random(); // Inizializza l'oggetto random
-            byte[] byteInviati = Encoding.ASCII.GetBytes(rdn.Next(1, 7).ToString()); // Decodifica in bytes il numero estratto grazie a rdn.Next().
+            numeroEstratto = rdn.Next(1, 7);
+            switch (numeroEstratto)
+            {
+                case 1:
+                    MostraImmagine("one", true);
+                    break;
+                case 2:
+                    MostraImmagine("two", true);
+                    break;
+                case 3:
+                    MostraImmagine("three", true);
+                    break;
+                case 4:
+                    MostraImmagine("four", true);
+                    break;
+                case 5:
+                    MostraImmagine("five", true);
+                    break;
+                case 6:
+                    MostraImmagine("six", true);
+                    break;
+            }
+            byte[] byteInviati = Encoding.ASCII.GetBytes(numeroEstratto.ToString()); // Decodifica in bytes il numero estratto grazie a rdn.Next().
             socket.SendTo(byteInviati, destinationEndPoint);
         }
     }

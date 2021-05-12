@@ -21,15 +21,17 @@
                 </LinearGradientBrush>
             </Button.BorderBrush>
         </Button>
-        <GroupBox Header="Dado Mio:" HorizontalAlignment="Left" Height="220" Margin="246,22,0,0" VerticalAlignment="Top" Width="241" Background="LightGreen">
-            <Image HorizontalAlignment="Left" Height="179" Margin="10,10,0,0" VerticalAlignment="Top" Width="197"/>
-        </GroupBox>
-        <GroupBox Header="Dado Avversario:" HorizontalAlignment="Left" Height="220" Margin="512,22,0,0" VerticalAlignment="Top" Width="247" Background="LightCoral">
-            <Image Height="178" Margin="10,10,16.2,0" VerticalAlignment="Top"/>
-        </GroupBox>
         <Label Content="Destination Ip Address" HorizontalAlignment="Left" Margin="10,22,0,0" VerticalAlignment="Top"/>
         <Label Content="Destination Port" HorizontalAlignment="Left" Margin="10,85,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.241,0.367"/>
         <TextBox x:Name="txtIpAdd" HorizontalAlignment="Left" Height="23" Margin="10,48,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="130"/>
         <TextBox x:Name="txtDestPort" HorizontalAlignment="Left" Height="23" Margin="10,111,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="130"/>
+        <Grid x:Name="grdDadoMio" HorizontalAlignment="Left" Height="189" Margin="177,34,0,0" VerticalAlignment="Top" Width="227" Background="LightGreen">
+            <Image HorizontalAlignment="Left" Height="169" Margin="10,10,0,0" VerticalAlignment="Top" Width="207"/>
+        </Grid>
+        <Grid x:Name="grdDadoAvversario" HorizontalAlignment="Left" Height="189" Margin="467,34,0,0" VerticalAlignment="Top" Width="227" Background="Coral">
+            <Image HorizontalAlignment="Left" Height="169" Margin="10,10,0,0" VerticalAlignment="Top" Width="207"/>
+        </Grid>
+        <Label Content="Dado Mio" HorizontalAlignment="Left" Margin="177,4,0,0" VerticalAlignment="Top"/>
+        <Label Content="Dado Avversario" HorizontalAlignment="Left" Margin="467,4,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.008,0.984"/>
     </Grid>
 </Window>
