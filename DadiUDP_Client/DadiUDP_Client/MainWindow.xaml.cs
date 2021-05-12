@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace DadiUDP_Client
@@ -27,7 +28,7 @@ namespace DadiUDP_Client
             txtIpAdd.Text = "127.0.0.1";
         }
 
-
+        string message;
         public async void SocketReceive(object sourceEndPoint) // l'async permette di, mentre il thread ascolta di fare le altre cose
         {
             IPEndPoint sourceEP = (IPEndPoint)sourceEndPoint;
@@ -37,7 +38,7 @@ namespace DadiUDP_Client
 
             byte[] byteRicevuti = new byte[256]; // Posso ricevere solo 256 byte (quindi 256 caratteri).
             int bytes = 0; // Contatore che conta quanti byte ho ricevuto.
-            string message = string.Empty;
+            message = string.Empty;
 
             // Ciclo che all'infinito controlla se vengono ricevuti bytes, grazie al fatto che ho async il programma non si bloccherà
             await Task.Run(() =>       // Il task è una porzione di thread che andrà ad ascoltare in maniera asincrona il canale( in modo da non bloccare l'interfaccia mentre il Task ascolta).
@@ -49,6 +50,7 @@ namespace DadiUDP_Client
                         message = string.Empty;
                         bytes = socket.Receive(byteRicevuti, byteRicevuti.Length, 0); // Il primo parametro è l'array su cui verrano caricati i dati, il secondo la sua lunghezza e il terzo una flag che va sempre messa a 0.
                         message += Encoding.ASCII.GetString(byteRicevuti, 0, bytes); // Decodifica l'array di byte in ASCII string.
+                        MostraRisultato();
 
                         switch (message)
                         {
@@ -149,6 +151,8 @@ namespace DadiUDP_Client
 
             Random rdn = new Random(); // Inizializza l'oggetto random
             numeroEstratto = rdn.Next(1, 7);
+            MostraRisultato();
+
             switch (numeroEstratto)
             {
                 case 1:
@@ -172,6 +176,38 @@ namespace DadiUDP_Client
             }
             byte[] byteInviati = Encoding.ASCII.GetBytes(numeroEstratto.ToString()); // Decodifica in bytes il numero estratto grazie a rdn.Next().
             socket.SendTo(byteInviati, destinationEndPoint);
+        }
+
+
+        private void MostraRisultato()
+        {
+            if (numeroEstratto != 0 && message != "")
+            {
+                if (numeroEstratto > int.Parse(message))
+                {
+                    this.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        lblRisultato.Foreground = Brushes.Green;
+                        lblRisultato.Content = "Hai vinto!";
+                    }));
+                }
+                else if (numeroEstratto < int.Parse(message))
+                {
+                    this.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        lblRisultato.Foreground = Brushes.Red;
+                        lblRisultato.Content = "Hai perso!";
+                    }));
+                }
+                else
+                {
+                    this.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        lblRisultato.Foreground = Brushes.Orange;
+                        lblRisultato.Content = "Pareggio!";
+                    }));
+                }
+            }
         }
     }
 }
