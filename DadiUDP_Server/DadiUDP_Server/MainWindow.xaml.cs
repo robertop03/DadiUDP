@@ -51,29 +51,7 @@ namespace DadiUDP_Server
                         bytes = socket.Receive(byteRicevuti, byteRicevuti.Length, 0); // Il primo parametro è l'array su cui verrano caricati i dati, il secondo la sua lunghezza e il terzo una flag che va sempre messa a 0.
                         message += Encoding.ASCII.GetString(byteRicevuti, 0, bytes); // Decodifica l'array di byte in ASCII string.
                         MostraRisultato();
-
-                        switch (message)
-                        {
-                            case "1":
-                                MostraImmagine("one", false);
-                                break;
-                            case "2":
-                                MostraImmagine("two", false);
-                                break;
-                            case "3":
-                                MostraImmagine("three", false);
-                                break;
-                            case "4":
-                                MostraImmagine("four", false);
-                                break;
-                            case "5":
-                                MostraImmagine("five", false);
-                                break;
-                            case "6":
-                                MostraImmagine("six", false);
-                                break;
-                        }
-
+                        SceltaImmagine(message, false);
                     }
                 }
             });
@@ -151,27 +129,8 @@ namespace DadiUDP_Server
             Random rdn = new Random();// Inizializza l'oggetto random
             numeroEstratto = rdn.Next(1, 7);
             MostraRisultato();
-            switch (numeroEstratto)
-            {
-                case 1:
-                    MostraImmagine("one", true);
-                    break;
-                case 2:
-                    MostraImmagine("two", true);
-                    break;
-                case 3:
-                    MostraImmagine("three", true);
-                    break;
-                case 4:
-                    MostraImmagine("four", true);
-                    break;
-                case 5:
-                    MostraImmagine("five", true);
-                    break;
-                case 6:
-                    MostraImmagine("six", true);
-                    break;
-            }
+            SceltaImmagine(numeroEstratto.ToString(), true);
+
             byte[] byteInviati = Encoding.ASCII.GetBytes(numeroEstratto.ToString());// Decodifica in bytes il numero estratto.
             socket.SendTo(byteInviati, destinationEndPoint);
         }
@@ -185,6 +144,7 @@ namespace DadiUDP_Server
                     this.Dispatcher.BeginInvoke(new Action(() =>
                     {
                         lblRisultato.Foreground = Brushes.Green;
+                        lblRisultato.Background = Brushes.LightGreen;
                         lblRisultato.Content = "Hai vinto!";
                     }));
                 }
@@ -192,7 +152,8 @@ namespace DadiUDP_Server
                 {
                     this.Dispatcher.BeginInvoke(new Action(() =>
                     {
-                        lblRisultato.Foreground = Brushes.Red;
+                        lblRisultato.Foreground = Brushes.DarkRed;
+                        lblRisultato.Background = Brushes.Red;
                         lblRisultato.Content = "Hai perso!";
                     }));
                 }
@@ -200,10 +161,36 @@ namespace DadiUDP_Server
                 {
                     this.Dispatcher.BeginInvoke(new Action(() =>
                     {
-                        lblRisultato.Foreground = Brushes.Orange;
+                        lblRisultato.Foreground = Brushes.DarkBlue;
+                        lblRisultato.Background = Brushes.LightBlue;
                         lblRisultato.Content = "Pareggio!";
                     }));
                 }
+            }
+        }
+
+        private void SceltaImmagine(string indirizzamentoImmagine, bool f)
+        {
+            switch (indirizzamentoImmagine)
+            {
+                case "1":
+                    MostraImmagine("one", f);
+                    break;
+                case "2":
+                    MostraImmagine("two", f);
+                    break;
+                case "3":
+                    MostraImmagine("three", f);
+                    break;
+                case "4":
+                    MostraImmagine("four", f);
+                    break;
+                case "5":
+                    MostraImmagine("five", f);
+                    break;
+                case "6":
+                    MostraImmagine("six", f);
+                    break;
             }
         }
     }

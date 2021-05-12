@@ -29,6 +29,7 @@
         <Grid x:Name="grdDadoAvversario" HorizontalAlignment="Left" Height="189" Margin="467,34,0,0" VerticalAlignment="Top" Width="227" Background="Coral"/>
         <Label Content="Dado Mio" HorizontalAlignment="Left" Margin="177,4,0,0" VerticalAlignment="Top"/>
         <Label Content="Dado Avversario" HorizontalAlignment="Left" Margin="467,4,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.008,0.984"/>
-        <Label x:Name="lblRisultato" Content="Risultato" HorizontalAlignment="Left" Margin="24,259,0,0" VerticalAlignment="Top" Height="75" Width="199"/>
+        <Label x:Name="lblRisultato" Content="Risultato" HorizontalAlignment="Left" Margin="24,259,0,0" VerticalAlignment="Top" Height="75" Width="199" FontSize="35" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        
     </Grid>
 </Window>
