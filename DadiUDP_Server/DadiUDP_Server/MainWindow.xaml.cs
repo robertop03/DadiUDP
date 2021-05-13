@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*
+* Autore: Pisu Roberto
+* Classe: 4^L
+* Data inizio: 2021/05/11
+* Scopo: Realizzare una simulazione del lancio di un dado contro un avversario tramite il protocollo UDP.
+*/
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -12,7 +18,7 @@ using System.Windows.Media.Imaging;
 namespace DadiUDP_Server
 {
     /// <summary>
-    /// Logica di interazione per MainWindow.xaml
+    /// Server (H2)
     /// </summary>
     public partial class MainWindow : Window
     {
@@ -21,14 +27,15 @@ namespace DadiUDP_Server
             InitializeComponent();
             IPEndPoint sourceEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 60000); // Potevo mettere anche 127.0.0.1
 
-            Thread t1 = new Thread(new ParameterizedThreadStart(SocketReceive)); // Thread per la ricezione. // Paramet... da la possibilità di creare un thread con un parametro.
+            Thread t1 = new Thread(new ParameterizedThreadStart(SocketReceive)); // Thread per la ricezione. ParameterizedThreadStart da la possibilità di creare un thread con un parametro.
             t1.Start(sourceEndPoint);
 
+            // Messi per velocizzare le fasi di testing:
             txtDestPort.Text = "60001";
             txtIpAdd.Text = "127.0.0.1";
         }
 
-        string message;
+        private string message;
         public async void SocketReceive(object sourceEndPoint) // l'async permette di, mentre il thread ascolta di fare le altre cose
         {
             IPEndPoint sourceEP = (IPEndPoint)sourceEndPoint;
@@ -57,30 +64,7 @@ namespace DadiUDP_Server
             });
         }
 
-        private void MostraImmagine(string nomeImmagine, bool flag)
-        {
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                Image image = new Image
-                {
-                    VerticalAlignment = VerticalAlignment.Top,
-                    Width = 197,
-                    Height = 179,
-                    Margin = new Thickness(10, 10, 0, 0),
-                };
-                BitmapImage bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.UriSource = new Uri(@"/FaceDice/" + nomeImmagine + ".jpg", UriKind.Relative);
-                bitmap.EndInit();
-                image.Source = bitmap;
-                if (flag)
-                    grdDadoMio.Children.Add(image);
-                else
-                    grdDadoAvversario.Children.Add(image);
-            }));
-        }
-
-        int numeroEstratto;
+        private int numeroEstratto;
 
         private void btnLanciaDado_Click(object sender, RoutedEventArgs e)
         {
@@ -135,40 +119,47 @@ namespace DadiUDP_Server
             socket.SendTo(byteInviati, destinationEndPoint);
         }
 
+        /// <summary>
+        /// Metodo che mostra il risultato dei dadi (Specifica se ho vinto, se ho perso o se è un pareggio).
+        /// </summary>
         private void MostraRisultato()
         {
             if (numeroEstratto != 0 && message != "")
             {
+                object coloreTesto, coloreSfondo;
+                string messaggio = string.Empty;
                 if (numeroEstratto > int.Parse(message))
                 {
-                    this.Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        lblRisultato.Foreground = Brushes.Green;
-                        lblRisultato.Background = Brushes.LightGreen;
-                        lblRisultato.Content = "Hai vinto!";
-                    }));
+                    coloreTesto = Brushes.Green;
+                    coloreSfondo = Brushes.LightGreen;
+                    message = "Hai vinto!";
                 }
                 else if (numeroEstratto < int.Parse(message))
                 {
-                    this.Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        lblRisultato.Foreground = Brushes.DarkRed;
-                        lblRisultato.Background = Brushes.Red;
-                        lblRisultato.Content = "Hai perso!";
-                    }));
+                    coloreTesto = Brushes.DarkRed;
+                    coloreSfondo = Brushes.Red;
+                    message = "Hai perso!";
                 }
                 else
                 {
-                    this.Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        lblRisultato.Foreground = Brushes.DarkBlue;
-                        lblRisultato.Background = Brushes.LightBlue;
-                        lblRisultato.Content = "Pareggio!";
-                    }));
+                    coloreTesto = Brushes.DarkBlue;
+                    coloreSfondo = Brushes.LightBlue;
+                    message = "Pareggio!";
                 }
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    lblRisultato.Foreground = coloreTesto as Brush;
+                    lblRisultato.Background = coloreSfondo as Brush;
+                    lblRisultato.Content = message;
+                }));
             }
         }
 
+        /// <summary>
+        /// Metodo per la scelta di quale immagine mostrare e dove mostrarla.
+        /// </summary>
+        /// <param name="indiceImmagine">Contiene la stringa che i due giocatori si scambiano, che indica il numero uscito dal lancio del dado.</param>
+        /// <param name="f">Flag che se impostata a false indica che l'immagine del dado da mostrare appartiene all'avversario.</param>
         private void SceltaImmagine(string indirizzamentoImmagine, bool f)
         {
             switch (indirizzamentoImmagine)
@@ -192,6 +183,34 @@ namespace DadiUDP_Server
                     MostraImmagine("six", f);
                     break;
             }
+        }
+
+        /// <summary>
+        /// Metodo che mostra l'immagine nell'apposita griglia.
+        /// </summary>
+        /// <param name="nomeImmagine">Stringa contenente il nome dell'immagine (contenuta nella cartella FaceDice) da mostrare</param>
+        /// <param name="flag">Se true indica che l'immagine è da inserire nella griglia associata la mio dado, altrimenti nella griglia associata al dado avversario.</param>
+        private void MostraImmagine(string nomeImmagine, bool flag)
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                Image image = new Image
+                {
+                    VerticalAlignment = VerticalAlignment.Top,
+                    Width = 197,
+                    Height = 179,
+                    Margin = new Thickness(10, 10, 0, 0),
+                };
+                BitmapImage bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(@"/FaceDice/" + nomeImmagine + ".jpg", UriKind.Relative);
+                bitmap.EndInit();
+                image.Source = bitmap;
+                if (flag)
+                    grdDadoMio.Children.Add(image);
+                else
+                    grdDadoAvversario.Children.Add(image);
+            }));
         }
     }
 }
