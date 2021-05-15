@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DadiUDP_Client"
         mc:Ignorable="d"
-        Title="Client" Height="396" Width="800">
+        Title="Client" Height="433.2" Width="1047.5">
     <Grid>
         <Button x:Name="btnLanciaDado" Content="Lancia Dado" HorizontalAlignment="Left" Margin="397,259,0,0" VerticalAlignment="Top" Width="199" RenderTransformOrigin="-0.775,-1.865" Height="91" Click="btnLanciaDado_Click" Foreground="White">
             <Button.Background>
@@ -30,6 +30,22 @@
         <Label Content="Dado Mio" HorizontalAlignment="Left" Margin="177,4,0,0" VerticalAlignment="Top"/>
         <Label Content="Dado Avversario" HorizontalAlignment="Left" Margin="467,4,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.008,0.984"/>
         <Label x:Name="lblRisultato" Content="Risultato" HorizontalAlignment="Left" Margin="24,259,0,0" VerticalAlignment="Top" Height="75" Width="199" FontSize="35" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        
+        <ListBox x:Name="lstChat" Height="307" Margin="736,22,28.8,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="txtMessage" HorizontalAlignment="Left" Height="23" Margin="736,358,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="142"/>
+        <Button x:Name="btnInviaMessaggio" Content="Invia" HorizontalAlignment="Left" Margin="920,358,0,0" Width="75" Foreground="White" Height="23" VerticalAlignment="Top" Click="btnInviaMessaggio_Click">
+            <Button.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="Black" Offset="0"/>
+                    <GradientStop Color="#FF5EC8C2" Offset="1"/>
+                </LinearGradientBrush>
+            </Button.Background>
+            <Button.BorderBrush>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="Black" Offset="0"/>
+                    <GradientStop Color="#FFA08080" Offset="1"/>
+                </LinearGradientBrush>
+            </Button.BorderBrush>
+        </Button>
+        <Label Content="Messaggio:" HorizontalAlignment="Left" Margin="736,334,0,0" VerticalAlignment="Top"/>
     </Grid>
 </Window>

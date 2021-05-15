@@ -57,66 +57,49 @@ namespace DadiUDP_Server
                         message = string.Empty;
                         bytes = socket.Receive(byteRicevuti, byteRicevuti.Length, 0); // Il primo parametro è l'array su cui verrano caricati i dati, il secondo la sua lunghezza e il terzo una flag che va sempre messa a 0.
                         message += Encoding.ASCII.GetString(byteRicevuti, 0, bytes); // Decodifica l'array di byte in ASCII string.
-                        MostraRisultato();
-                        SceltaImmagine(message, false);
+                        if (int.TryParse(message, out int _))
+                        {
+                            MostraRisultato();
+                            SceltaImmagine(message, false);
+                        }
+                        else
+                        {
+                            Dispatcher.BeginInvoke(new Action(() =>
+                            {
+                                lstChat.Items.Add($"(opponent): {message}");
+                            }));
+                        }
                     }
                 }
             });
         }
 
-        private int numeroEstratto;
+        private int numeroEstratto, controllo;
 
         private void btnLanciaDado_Click(object sender, RoutedEventArgs e)
         {
-            if (txtIpAdd.Text == "")
+            try
             {
-                txtIpAdd.SelectAll();
-                txtIpAdd.Focus();
-                MessageBox.Show("Inserire l'ip di destinazione.", "Errore", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-            if (txtDestPort.Text == "")
-            {
-                txtDestPort.SelectAll();
-                txtDestPort.Focus();
-                MessageBox.Show("Inserire la porta di destinazione.", "Errore", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+                object[] portaEIp = (object[])Controlli(false);
+                int portDest = Convert.ToInt32(portaEIp[0]);
+                IPAddress ipDest = portaEIp[1] as IPAddress;
 
-            bool ipOk = IPAddress.TryParse(txtIpAdd.Text, out IPAddress ipDest);
-            if (!ipOk)
-            {
-                txtIpAdd.SelectAll();
-                txtIpAdd.Focus();
-                MessageBox.Show("Inserire un indirizzo ip valido.", "Errore", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-            bool portaOk = int.TryParse(txtDestPort.Text, out int portDest);
-            if (!portaOk)
-            {
-                txtDestPort.SelectAll();
-                txtDestPort.Focus();
-                MessageBox.Show("La porta di destinazione deve essere un numero.", "Errore", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-            if (portDest > 65535 || portDest < 49152)
-            {
-                txtDestPort.SelectAll();
-                txtDestPort.Focus();
-                MessageBox.Show("La porta di destinazione deve essere una private port (range tra 49152 a 65535).", "Errore", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+                IPEndPoint destinationEndPoint = new IPEndPoint(ipDest, portDest);
+                Socket socket = new Socket(ipDest.AddressFamily, SocketType.Dgram, ProtocolType.Udp); // Address family recupera le informazioni sull'indirizzo ip
 
-            IPEndPoint destinationEndPoint = new IPEndPoint(ipDest, portDest);
-            Socket socket = new Socket(ipDest.AddressFamily, SocketType.Dgram, ProtocolType.Udp); // Address family recupera le informazioni sull'indirizzo ip
+                Random rdn = new Random();// Inizializza l'oggetto random
+                numeroEstratto = rdn.Next(1, 7);
+                MostraRisultato();
+                SceltaImmagine(numeroEstratto.ToString(), true);
 
-            Random rdn = new Random();// Inizializza l'oggetto random
-            numeroEstratto = rdn.Next(1, 7);
-            MostraRisultato();
-            SceltaImmagine(numeroEstratto.ToString(), true);
-
-            byte[] byteInviati = Encoding.ASCII.GetBytes(numeroEstratto.ToString());// Decodifica in bytes il numero estratto.
-            socket.SendTo(byteInviati, destinationEndPoint);
+                byte[] byteInviati = Encoding.ASCII.GetBytes(numeroEstratto.ToString());// Decodifica in bytes il numero estratto.
+                controllo = -1;
+                socket.SendTo(byteInviati, destinationEndPoint);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Errore", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         /// <summary>
@@ -124,33 +107,42 @@ namespace DadiUDP_Server
         /// </summary>
         private void MostraRisultato()
         {
-            if (numeroEstratto != 0 && message != "")
+            if (message != "" && controllo != 0)
             {
+                bool f = false;
+                for (int i = 1; i < 7; i++)
+                {
+                    if (message == i.ToString())
+                        f = true;
+                }
+                if (!f)
+                    return;
+
                 object coloreTesto, coloreSfondo;
                 string messaggio = string.Empty;
                 if (numeroEstratto > int.Parse(message))
                 {
                     coloreTesto = Brushes.Green;
                     coloreSfondo = Brushes.LightGreen;
-                    message = "Hai vinto!";
+                    messaggio = "Hai vinto!";
                 }
                 else if (numeroEstratto < int.Parse(message))
                 {
                     coloreTesto = Brushes.DarkRed;
                     coloreSfondo = Brushes.Red;
-                    message = "Hai perso!";
+                    messaggio = "Hai perso!";
                 }
                 else
                 {
                     coloreTesto = Brushes.DarkBlue;
                     coloreSfondo = Brushes.LightBlue;
-                    message = "Pareggio!";
+                    messaggio = "Pareggio!";
                 }
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
                     lblRisultato.Foreground = coloreTesto as Brush;
                     lblRisultato.Background = coloreSfondo as Brush;
-                    lblRisultato.Content = message;
+                    lblRisultato.Content = messaggio;
                 }));
             }
         }
@@ -211,6 +203,83 @@ namespace DadiUDP_Server
                 else
                     grdDadoAvversario.Children.Add(image);
             }));
+        }
+
+        private void btnInviaMessaggio_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                object[] portaEIp = (object[])Controlli(true);
+                int portDest = Convert.ToInt32(portaEIp[0]);
+                IPAddress ipDest = portaEIp[1] as IPAddress;
+
+                IPEndPoint destinationEndPoint = new IPEndPoint(ipDest, portDest);
+                Socket socket = new Socket(ipDest.AddressFamily, SocketType.Dgram, ProtocolType.Udp); // Address family recupera le informazioni sull'indirizzo ip
+
+                byte[] byteInviati = Encoding.ASCII.GetBytes(txtMessage.Text);// Decodifica in bytes il numero messaggio.
+                lstChat.Items.Add($"(you): {txtMessage.Text}");
+                txtMessage.Clear();
+                socket.SendTo(byteInviati, destinationEndPoint);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Errore", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+        }
+
+        /// <summary>
+        /// Metodo che effettua i controlli dei dati inseriti in input.
+        /// </summary>
+        /// <param name="chat">Booleano che se impostato a true fa eseguire il controllo anche sulla textBox "txtMessagge"</param>
+        /// <returns>Restituisce un array di object, dentro il quale il primo elemento sarà la porta mentre il secondo l'ip.</returns>
+        private object Controlli(bool chat)
+        {
+            if (txtIpAdd.Text == "")
+            {
+                txtIpAdd.SelectAll();
+                txtIpAdd.Focus();
+                throw new Exception("Inserire l'ip di destinazione.");
+            }
+            if (txtDestPort.Text == "")
+            {
+                txtDestPort.SelectAll();
+                txtDestPort.Focus();
+                throw new Exception("Inserire la porta di destinazione.");
+            }
+
+            bool ipOk = IPAddress.TryParse(txtIpAdd.Text, out IPAddress ipDest);
+            if (!ipOk)
+            {
+                txtIpAdd.SelectAll();
+                txtIpAdd.Focus();
+                throw new Exception("Inserire un indirizzo ip valido.");
+            }
+            bool portaOk = int.TryParse(txtDestPort.Text, out int portDest);
+            if (!portaOk)
+            {
+                txtDestPort.SelectAll();
+                txtDestPort.Focus();
+                throw new Exception("La porta di destinazione deve essere un numero.");
+            }
+            if (portDest > 65535 || portDest < 49152)
+            {
+                txtDestPort.SelectAll();
+                txtDestPort.Focus();
+                throw new Exception("La porta di destinazione deve essere una private port (range tra 49152 a 65535).");
+            }
+            if (chat)
+            {
+                if (txtMessage.Text.Length < 1)
+                {
+                    txtMessage.SelectAll();
+                    txtMessage.Focus();
+                    throw new Exception("Inserire un messaggio di almeno un carattere.");
+                }
+            }
+
+            object[] portaEIP = new object[] { portDest, ipDest };
+            return portaEIP;
         }
     }
 }
